@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: #15231d;
+  background: #f5f7f6;
+  font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-line bg-white shadow-panel;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-brand hover:text-brand;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-brand focus:ring-2 focus:ring-brand/10;
+  }
+
+  .table-wrap {
+    @apply overflow-visible rounded-2xl border border-line bg-white shadow-panel;
+  }
+
+  .table-head {
+    @apply sticky top-[72px] z-[5] bg-[#f8faf9] text-left text-xs font-semibold uppercase tracking-wide text-muted shadow-[0_1px_0_#e4ebe7];
+  }
+}
