@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle2, ExternalLink, RefreshCw } from "lucide-react";
+import { ArrowLeft, CalendarClock, CheckCircle2, ExternalLink, RefreshCw, UserRound } from "lucide-react";
 import { useState } from "react";
 import { PageHeader, SectionTitle, StatusBadge } from "@/components/ui";
 import { publishTasks } from "@/mocks/data";
@@ -28,6 +28,11 @@ export default function PublishDetailPage() {
     <>
       <Link href="/content/publish" className="mb-5 inline-flex items-center gap-1 text-sm font-semibold text-muted"><ArrowLeft size={15} />返回发布任务</Link>
       <PageHeader eyebrow="内容发布详情" title={task.title} description="查看各平台账号的发布进度、结果与失败原因。" />
+      <div className="mb-5 flex flex-wrap items-center gap-5 rounded-xl border border-line bg-white px-4 py-3 text-sm shadow-panel">
+        <span className="flex items-center gap-2 text-muted"><UserRound size={15} className="text-brand" />发布人：<strong className="text-ink">{task.publisher}</strong></span>
+        <span className="h-4 w-px bg-line" />
+        <span className="flex items-center gap-2 text-muted"><CalendarClock size={15} className="text-brand" />发布时间：<strong className="font-mono text-ink">{task.date}</strong></span>
+      </div>
       <div className="grid grid-cols-3 gap-4">
         <div className="panel p-5"><p className="text-xs font-semibold text-muted">发布进度</p><p className="mt-3 text-3xl font-bold">{success}/{records.length}</p><div className="mt-4 h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-brand transition-all" style={{ width: `${success / records.length * 100}%` }} /></div></div>
         <div className="panel p-5"><p className="text-xs font-semibold text-muted">成功账号</p><p className="mt-3 text-3xl font-bold text-emerald-700">{success}</p><p className="mt-3 text-xs text-muted">已生成平台发布记录</p></div>

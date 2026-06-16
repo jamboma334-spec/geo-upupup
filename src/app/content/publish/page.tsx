@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, CircleX, Plus, Search } from "lucide-react";
+import { CheckCircle2, CircleX, Eye, Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/ui";
 import { publishTasks } from "@/mocks/data";
@@ -43,8 +43,8 @@ export default function PublishTasksPage() {
               <th className="px-5 py-3.5">发布内容</th>
               <th>目标账号</th>
               <th>发布状态</th>
-              <th>发布时间</th>
               <th>发布人</th>
+              <th>发布时间</th>
               <th className="pr-5 text-right">操作</th>
             </tr>
           </thead>
@@ -58,9 +58,9 @@ export default function PublishTasksPage() {
                   <td className="px-5 py-5 font-semibold">{task.title}</td>
                   <td><div className="flex items-center gap-3"><strong className="text-lg">{task.records.length}</strong><div className="flex -space-x-2">{platforms.map((platform) => <span key={platform} className="grid size-8 place-items-center rounded-full border-2 border-white bg-brand-pale text-[11px] font-bold text-brand" title={platform}>{platform.slice(0, 1)}</span>)}</div></div></td>
                   <td><div className="flex items-center gap-4"><span className="flex items-center gap-1.5 font-semibold text-emerald-700"><CheckCircle2 size={16} />成功 {success}</span><span className="flex items-center gap-1.5 font-semibold text-rose-700"><CircleX size={16} />失败 {failed}</span></div></td>
-                  <td className="font-mono text-xs text-muted">{task.date}</td>
                   <td><div className="flex items-center gap-2"><span className="grid size-8 place-items-center rounded-full bg-gradient-to-br from-[#d6eee3] to-[#abd8c4] text-xs font-bold text-brand-dark">{task.publisher.slice(0, 1)}</span><span className="font-semibold">{task.publisher}</span></div></td>
-                  <td className="pr-5 text-right"><Link href={`/content/publish/${task.id}`} className="font-semibold text-brand hover:text-brand-dark">查看详情</Link></td>
+                  <td className="font-mono text-xs text-muted">{task.date}</td>
+                  <td className="pr-5"><div className="flex justify-end"><Link href={`/content/publish/${task.id}`} className="grid size-9 place-items-center rounded-lg border border-line text-muted transition hover:border-brand/30 hover:bg-brand-pale hover:text-brand" title="查看详情" aria-label={`查看 ${task.title} 详情`}><Eye size={15} /></Link></div></td>
                 </tr>
               );
             })}
