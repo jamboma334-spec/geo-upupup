@@ -197,11 +197,11 @@ export const trendData = [
 ];
 
 export const platformContents = [
-  { id: "c1", title: "城市通勤纯电 SUV 选购指南", platform: "知乎", account: "远途汽车官方", status: "成功", views: 24861, likes: 684, comments: 93, saves: 426, updated: "10 分钟前", url: "https://www.zhihu.com/" },
-  { id: "c2", title: "城市通勤纯电 SUV 选购指南", platform: "微信公众号", account: "远途汽车", status: "成功", views: 18240, likes: 381, comments: 62, saves: undefined, updated: "35 分钟前", url: "https://mp.weixin.qq.com/" },
-  { id: "c3", title: "远途 X7 夏季真实续航测试", platform: "小红书", account: "远途出行笔记", status: "成功", views: 42751, likes: 1260, comments: 188, saves: 932, updated: "2 小时前", url: "https://www.xiaohongshu.com/" },
-  { id: "c4", title: "25 万纯电 SUV 如何选择", platform: "头条号", account: "远途汽车官方", status: "成功", views: 31682, likes: 526, comments: 105, saves: 246, updated: "3 小时前", url: "https://www.toutiao.com/" },
-  { id: "c5", title: "远途 X7 城市通勤一周体验", platform: "百家号", account: "远途汽车品牌号", status: "成功", views: 12680, likes: 249, comments: 48, saves: 118, updated: "昨天 18:20", url: "https://baijiahao.baidu.com/" },
+  { id: "c1", title: "城市通勤纯电 SUV 选购指南", platform: "知乎", account: "远途汽车官方", status: "成功", views: 24861, likes: 684, comments: 93, saves: 426, publishedAt: "2026-06-15 09:20:00", updated: "10 分钟前", url: "https://www.zhihu.com/" },
+  { id: "c2", title: "城市通勤纯电 SUV 选购指南", platform: "微信公众号", account: "远途汽车", status: "成功", views: 18240, likes: 381, comments: 62, saves: undefined, publishedAt: "2026-06-15 08:45:00", updated: "35 分钟前", url: "https://mp.weixin.qq.com/" },
+  { id: "c3", title: "远途 X7 夏季真实续航测试", platform: "小红书", account: "远途出行笔记", status: "成功", views: 42751, likes: 1260, comments: 188, saves: 932, publishedAt: "2026-06-14 18:30:00", updated: "2 小时前", url: "https://www.xiaohongshu.com/" },
+  { id: "c4", title: "25 万纯电 SUV 如何选择", platform: "头条号", account: "远途汽车官方", status: "成功", views: 31682, likes: 526, comments: 105, saves: 246, publishedAt: "2026-06-12 14:10:00", updated: "3 小时前", url: "https://www.toutiao.com/" },
+  { id: "c5", title: "远途 X7 城市通勤一周体验", platform: "百家号", account: "远途汽车品牌号", status: "成功", views: 12680, likes: 249, comments: 48, saves: 118, publishedAt: "2026-06-08 18:20:00", updated: "昨天 18:20", url: "https://baijiahao.baidu.com/" },
   ...Array.from({ length: 20 }, (_, index) => ({
     id: `c${index + 6}`,
     title: ["城市补能效率实测", "远途 X7 家庭空间体验", "新能源 SUV 冬季用车指南", "智能驾驶城市通勤记录", "25 万级纯电 SUV 对比"][index % 5] + ` · ${index + 1}`,
@@ -212,6 +212,7 @@ export const platformContents = [
     likes: 220 + index * 43,
     comments: 35 + index * 8,
     saves: index % 5 === 2 ? undefined : 90 + index * 19,
+    publishedAt: `2026-${index > 13 ? "05" : "06"}-${String(index > 13 ? 30 - (index - 14) * 2 : 14 - index).padStart(2, "0")} ${String(9 + index % 8).padStart(2, "0")}:20:00`,
     updated: `${index + 1} 小时前`,
     url: ["https://www.zhihu.com/", "https://www.xiaohongshu.com/", "https://mp.weixin.qq.com/", "https://www.toutiao.com/", "https://baijiahao.baidu.com/"][index % 5],
   })),

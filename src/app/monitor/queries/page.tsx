@@ -7,11 +7,16 @@ import { PageHeader, StatusBadge } from "@/components/ui";
 import { queries } from "@/mocks/data";
 import { ActionButton } from "@/components/action-button";
 import { Pagination } from "@/components/pagination";
+import { FilterSelect } from "@/components/filter-select";
 
 export default function QueriesPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const pagedQueries = queries.slice((page - 1) * pageSize, page * pageSize);
+  const [keyword, setKeyword] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const filteredQueries = queries.filter((query) => (query.text.includes(keyword) || query.tags.some((tag) => tag.includes(keyword)) || query.querySet.includes(keyword)) && (!categoryFilter || query.category === categoryFilter) && (!priorityFilter || query.priority === priorityFilter));
+  const pagedQueries = filteredQueries.slice((page - 1) * pageSize, page * pageSize);
   return (
     <>
       <PageHeader
@@ -21,9 +26,9 @@ export default function QueriesPage() {
         action={<div className="flex gap-2"><ActionButton message="已打开批量导入" description="Mock 版本暂不读取真实文件" className="btn-secondary"><Download size={16} />批量导入</ActionButton><ActionButton message="已准备新建 Query" description="Mock 版本暂未接入编辑表单" className="btn-primary"><Plus size={16} />新建 Query</ActionButton></div>}
       />
       <div className="panel mb-4 flex items-center gap-3 p-4">
-        <label className="relative max-w-md flex-1"><Search size={16} className="absolute left-3 top-3 text-muted" /><input className="field pl-9" placeholder="搜索 Query 内容、标签或 Query 集" /></label>
-        <select className="field max-w-36"><option>全部分类</option><option>推荐</option><option>比较</option><option>评价</option></select>
-        <select className="field max-w-36"><option>全部优先级</option><option>高</option><option>中</option><option>低</option></select>
+        <label className="relative max-w-md flex-1"><Search size={16} className="absolute left-3 top-3 text-muted" /><input value={keyword} onChange={(event) => { setKeyword(event.target.value); setPage(1); }} className="field pl-9" placeholder="搜索 Query 内容、标签或 Query 集" /></label>
+        <FilterSelect value={categoryFilter} options={["推荐", "比较", "评价", "认知"]} placeholder="全部分类" onChange={(value) => { setCategoryFilter(value); setPage(1); }} className="w-36" />
+        <FilterSelect value={priorityFilter} options={["高", "中", "低"]} placeholder="全部优先级" onChange={(value) => { setPriorityFilter(value); setPage(1); }} className="w-36" />
       </div>
       <div className="table-wrap">
         <table className="w-full text-sm">
@@ -40,7 +45,7 @@ export default function QueriesPage() {
             ))}
           </tbody>
         </table>
-        <Pagination page={page} pageSize={pageSize} total={queries.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} />
+        {filteredQueries.length > 0 ? <Pagination page={page} pageSize={pageSize} total={filteredQueries.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} /> : <div className="grid min-h-56 place-items-center text-center"><div><p className="font-bold">没有找到符合条件的 Query</p><p className="mt-2 text-xs text-muted">尝试清除筛选条件或修改搜索关键词</p></div></div>}
       </div>
     </>
   );

@@ -1,14 +1,17 @@
 "use client";
 
-import { BarChart3, CalendarDays, ExternalLink, Eye, FilePlus2, Heart, LoaderCircle, MessageCircle, RefreshCw, Search, Star, Trash2, UserPlus } from "lucide-react";
+import { BarChart3, CalendarDays, ExternalLink, Eye, FilePlus2, Heart, Library, LoaderCircle, MessageCircle, RefreshCw, Search, Star, Trash2, UserPlus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { PageHeader, StatusBadge } from "@/components/ui";
+import { StatusBadge } from "@/components/ui";
 import { compactNumber } from "@/lib/utils";
 import { contentDailyData, platformContents } from "@/mocks/data";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/toast-provider";
 import { Pagination } from "@/components/pagination";
+import { FilterSelect } from "@/components/filter-select";
+import { TabbedPageHeader } from "@/components/page-tabs";
+import { DateRangeFilter, matchesDateRange, type DateRangeValue } from "@/components/date-range-filter";
 
 type PlatformContent = (typeof platformContents)[number];
 
@@ -37,8 +40,11 @@ export default function ContentDataPage() {
   const [overviewPlatform, setOverviewPlatform] = useState("全部平台");
   const [worksPlatform, setWorksPlatform] = useState("全部平台");
   const [keyword, setKeyword] = useState("");
-  const [worksAccount, setWorksAccount] = useState("全部账号");
-  const [worksStatus, setWorksStatus] = useState("全部状态");
+  const [worksAccount, setWorksAccount] = useState("");
+  const [worksStatus, setWorksStatus] = useState("");
+  const [worksDateRange, setWorksDateRange] = useState<DateRangeValue>("");
+  const [worksCustomStart, setWorksCustomStart] = useState("2026-06-01");
+  const [worksCustomEnd, setWorksCustomEnd] = useState("2026-06-15");
   const [dateRange, setDateRange] = useState<DateRange>("7days");
   const [customStart, setCustomStart] = useState("2026-06-09");
   const [customEnd, setCustomEnd] = useState("2026-06-15");
@@ -72,7 +78,7 @@ export default function ContentDataPage() {
 
   const totals = useMemo(() => chartData.reduce((result, item) => ({ publishes: result.publishes + item.publishes, followers: result.followers + item.followers, plays: result.plays + item.plays, likes: result.likes + item.likes, comments: result.comments + item.comments, saves: result.saves + item.saves }), { publishes: 0, followers: 0, plays: 0, likes: 0, comments: 0, saves: 0 }), [chartData]);
   const accountOptions = [...new Set(works.filter((item) => worksPlatform === "全部平台" || item.platform === worksPlatform).map((item) => item.account))];
-  const filteredWorks = works.filter((item) => (worksPlatform === "全部平台" || item.platform === worksPlatform) && (worksAccount === "全部账号" || item.account === worksAccount) && (worksStatus === "全部状态" || item.status === worksStatus) && item.title.includes(keyword));
+  const filteredWorks = works.filter((item) => (worksPlatform === "全部平台" || item.platform === worksPlatform) && (!worksAccount || item.account === worksAccount) && (!worksStatus || item.status === worksStatus) && item.title.includes(keyword) && matchesDateRange(item.publishedAt, worksDateRange, worksCustomStart, worksCustomEnd));
   const pagedWorks = filteredWorks.slice((worksPage - 1) * worksPageSize, worksPage * worksPageSize);
   const currentPlatformLabel = overviewPlatform === "全部平台" ? "全部平台" : overviewPlatform;
   const rangeLabel = dateRange === "yesterday" ? "昨天" : dateRange === "7days" ? "近 7 天" : dateRange === "30days" ? "近 30 天" : `${customStart} 至 ${customEnd}`;
@@ -108,12 +114,14 @@ export default function ContentDataPage() {
 
   return (
     <>
-      <PageHeader eyebrow="内容中心 / 内容数据" title="内容数据" description="查看各平台内容每天的数据增长、累计表现与作品明细。" />
-
-      <div className="mb-5 flex items-end gap-7 border-b border-line">
-        <button onClick={() => setActiveTab("overview")} className={cn("relative flex items-center gap-2 px-1 pb-3 text-sm font-semibold transition", activeTab === "overview" ? "text-brand after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-brand" : "text-muted hover:text-ink")}>数据总览<span className={cn("rounded-full px-2 py-0.5 text-[11px]", activeTab === "overview" ? "bg-brand-pale text-brand" : "bg-slate-100 text-muted")}>6 项指标</span></button>
-        <button onClick={() => setActiveTab("works")} className={cn("relative flex items-center gap-2 px-1 pb-3 text-sm font-semibold transition", activeTab === "works" ? "text-brand after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-brand" : "text-muted hover:text-ink")}>作品数据<span className={cn("rounded-full px-2 py-0.5 text-[11px]", activeTab === "works" ? "bg-brand-pale text-brand" : "bg-slate-100 text-muted")}>{works.length}</span></button>
-      </div>
+      <TabbedPageHeader
+        eyebrow="内容中心"
+        title="内容数据"
+        description="查看各平台内容增长与作品表现"
+        tabs={[{ value: "overview", label: "数据总览", icon: BarChart3, badge: "6 项指标" }, { value: "works", label: "作品数据", icon: Library, badge: works.length }]}
+        value={activeTab}
+        onChange={setActiveTab}
+      />
 
       {activeTab === "overview" && (
         <>
@@ -142,11 +150,11 @@ export default function ContentDataPage() {
 
       {activeTab === "works" && (
         <>
-          <div className="panel mb-4 divide-y divide-line p-4"><div className="pb-4"><PlatformTabs active={worksPlatform} onChange={(platform) => { setWorksPlatform(platform); setWorksAccount("全部账号"); setWorksPage(1); }} /></div><div className="flex items-center justify-between gap-5 pt-4"><div className="flex items-center gap-3"><label className="relative w-72 shrink-0"><Search size={15} className="absolute left-3 top-3 text-muted" /><input value={keyword} onChange={(event) => { setKeyword(event.target.value); setWorksPage(1); }} className="field pl-9" placeholder="搜索作品标题" /></label><select value={worksAccount} onChange={(event) => { setWorksAccount(event.target.value); setWorksPage(1); }} className="field w-44"><option>全部账号</option>{accountOptions.map((account) => <option key={account}>{account}</option>)}</select><select value={worksStatus} onChange={(event) => { setWorksStatus(event.target.value); setWorksPage(1); }} className="field w-36"><option>全部状态</option><option>成功</option><option>失败</option></select></div><div className="flex items-center gap-3"><span className="text-xs text-muted">{selectedWorkIds.length > 0 ? `已选择 ${selectedWorkIds.length} 条作品` : `共 ${filteredWorks.length} 条作品`}</span>{selectedWorkIds.length > 0 && <><button disabled={selectedWorkIds.some((id) => syncingIds.includes(id))} onClick={() => syncWorks(selectedWorkIds)} className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-pale px-3 py-2 text-xs font-semibold text-brand transition hover:bg-emerald-100 disabled:cursor-wait disabled:opacity-60">{selectedWorkIds.some((id) => syncingIds.includes(id)) ? <LoaderCircle size={14} className="animate-spin" /> : <RefreshCw size={14} />}批量同步</button><button onClick={() => setDeleteTargets(works.filter((item) => selectedWorkIds.includes(item.id)))} className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"><Trash2 size={14} />批量删除</button></>}</div></div></div>
+          <div className="panel mb-4 divide-y divide-line p-4"><div className="pb-4"><PlatformTabs active={worksPlatform} onChange={(platform) => { setWorksPlatform(platform); setWorksAccount(""); setWorksPage(1); }} /></div><div className="flex flex-wrap items-center justify-between gap-5 pt-4"><div className="flex flex-wrap items-center gap-3"><label className="relative w-64 shrink-0"><Search size={15} className="absolute left-3 top-3 text-muted" /><input value={keyword} onChange={(event) => { setKeyword(event.target.value); setWorksPage(1); }} className="field pl-9" placeholder="搜索作品标题" /></label><FilterSelect value={worksAccount} options={accountOptions} placeholder="全部账号" onChange={(value) => { setWorksAccount(value); setWorksPage(1); }} /><FilterSelect value={worksStatus} options={["成功", "失败"]} placeholder="全部状态" onChange={(value) => { setWorksStatus(value); setWorksPage(1); }} className="w-36" /><DateRangeFilter value={worksDateRange} customStart={worksCustomStart} customEnd={worksCustomEnd} onChange={(value) => { setWorksDateRange(value); setWorksPage(1); }} onCustomStartChange={(value) => { setWorksCustomStart(value); setWorksPage(1); }} onCustomEndChange={(value) => { setWorksCustomEnd(value); setWorksPage(1); }} /></div><div className="flex items-center gap-3"><span className="text-xs text-muted">{selectedWorkIds.length > 0 ? `已选择 ${selectedWorkIds.length} 条作品` : `共 ${filteredWorks.length} 条作品`}</span>{selectedWorkIds.length > 0 && <><button disabled={selectedWorkIds.some((id) => syncingIds.includes(id))} onClick={() => syncWorks(selectedWorkIds)} className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand-pale px-3 py-2 text-xs font-semibold text-brand transition hover:bg-emerald-100 disabled:cursor-wait disabled:opacity-60">{selectedWorkIds.some((id) => syncingIds.includes(id)) ? <LoaderCircle size={14} className="animate-spin" /> : <RefreshCw size={14} />}批量同步</button><button onClick={() => setDeleteTargets(works.filter((item) => selectedWorkIds.includes(item.id)))} className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"><Trash2 size={14} />批量删除</button></>}</div></div></div>
           <div className="table-wrap">
             <table className="w-full text-sm">
-              <thead className="table-head"><tr><th className="w-12 px-5 py-3.5"><input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="size-4 accent-brand" aria-label="全选作品" /></th><th>作品</th><th>平台 / 账号</th><th>状态</th><th>浏览</th><th>点赞</th><th>评论</th><th>收藏</th><th>更新时间</th><th className="pr-5 text-right">操作</th></tr></thead>
-              <tbody className="divide-y divide-line">{pagedWorks.map((content) => <tr key={content.id} className="hover:bg-[#fbfcfb]"><td className="px-5 py-5"><input type="checkbox" checked={selectedWorkIds.includes(content.id)} onChange={() => setSelectedWorkIds((current) => current.includes(content.id) ? current.filter((id) => id !== content.id) : [...current, content.id])} className="size-4 accent-brand" aria-label={`选择 ${content.title}`} /></td><td className="font-semibold"><a href={content.url} target="_blank" rel="noreferrer" className="hover:text-brand hover:underline">{content.title}</a></td><td><p className="font-semibold">{content.platform}</p><p className="mt-1 text-xs text-muted">{content.account}</p></td><td><StatusBadge status={content.status} /></td><td>{compactNumber(content.views)}</td><td>{compactNumber(content.likes)}</td><td>{compactNumber(content.comments)}</td><td className={content.saves === undefined ? "text-amber-700" : ""}>{compactNumber(content.saves)}</td><td className="text-muted">{content.updated}</td><td className="pr-5"><div className="flex justify-end gap-3"><a href={content.url} target="_blank" rel="noreferrer" className="text-muted transition hover:text-brand" title="查看原平台作品"><ExternalLink size={15} /></a><button disabled={syncingIds.includes(content.id)} onClick={() => syncWorks([content.id])} className="text-muted transition hover:text-brand disabled:cursor-wait" title="同步作品数据">{syncingIds.includes(content.id) ? <LoaderCircle size={15} className="animate-spin text-brand" /> : <RefreshCw size={15} />}</button><button onClick={() => setDeleteTargets([content])} className="text-muted transition hover:text-rose-700" title="删除作品"><Trash2 size={15} /></button></div></td></tr>)}</tbody>
+              <thead className="table-head"><tr><th className="w-12 px-5 py-3.5"><input type="checkbox" checked={allFilteredSelected} onChange={toggleSelectAll} className="size-4 accent-brand" aria-label="全选作品" /></th><th>作品</th><th>平台 / 账号</th><th>状态</th><th>浏览</th><th>点赞</th><th>评论</th><th>收藏</th><th>发布时间 / 同步</th><th className="pr-5 text-right">操作</th></tr></thead>
+              <tbody className="divide-y divide-line">{pagedWorks.map((content) => <tr key={content.id} className="hover:bg-[#fbfcfb]"><td className="px-5 py-5"><input type="checkbox" checked={selectedWorkIds.includes(content.id)} onChange={() => setSelectedWorkIds((current) => current.includes(content.id) ? current.filter((id) => id !== content.id) : [...current, content.id])} className="size-4 accent-brand" aria-label={`选择 ${content.title}`} /></td><td className="font-semibold"><a href={content.url} target="_blank" rel="noreferrer" className="hover:text-brand hover:underline">{content.title}</a></td><td><p className="font-semibold">{content.platform}</p><p className="mt-1 text-xs text-muted">{content.account}</p></td><td><StatusBadge status={content.status} /></td><td>{compactNumber(content.views)}</td><td>{compactNumber(content.likes)}</td><td>{compactNumber(content.comments)}</td><td className={content.saves === undefined ? "text-amber-700" : ""}>{compactNumber(content.saves)}</td><td><p className="font-mono text-xs text-ink">{content.publishedAt}</p><p className="mt-1 text-xs text-muted">同步于 {content.updated}</p></td><td className="pr-5"><div className="flex justify-end gap-3"><a href={content.url} target="_blank" rel="noreferrer" className="text-muted transition hover:text-brand" title="查看原平台作品"><ExternalLink size={15} /></a><button disabled={syncingIds.includes(content.id)} onClick={() => syncWorks([content.id])} className="text-muted transition hover:text-brand disabled:cursor-wait" title="同步作品数据">{syncingIds.includes(content.id) ? <LoaderCircle size={15} className="animate-spin text-brand" /> : <RefreshCw size={15} />}</button><button onClick={() => setDeleteTargets([content])} className="text-muted transition hover:text-rose-700" title="删除作品"><Trash2 size={15} /></button></div></td></tr>)}</tbody>
             </table>
             {filteredWorks.length === 0 && <div className="grid min-h-64 place-items-center text-center"><div><p className="font-bold">没有找到对应作品</p><p className="mt-2 text-sm text-muted">请切换平台或调整搜索关键词</p></div></div>}
             {filteredWorks.length > 0 && <Pagination page={worksPage} pageSize={worksPageSize} total={filteredWorks.length} onPageChange={setWorksPage} onPageSizeChange={(size) => { setWorksPageSize(size); setWorksPage(1); }} />}

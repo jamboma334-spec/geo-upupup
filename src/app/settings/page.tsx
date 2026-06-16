@@ -2,12 +2,12 @@
 
 import {
   Building2,
-  Check,
-  ChevronRight,
   CircleUserRound,
   MailPlus,
   MoreHorizontal,
   Pencil,
+  Power,
+  PowerOff,
   Plus,
   Search,
   ShieldCheck,
@@ -17,10 +17,12 @@ import {
 import { useMemo, useState } from "react";
 import { useOrganization } from "@/components/organization-provider";
 import { Pagination } from "@/components/pagination";
+import { FilterSelect } from "@/components/filter-select";
 import { useToast } from "@/components/toast-provider";
 import { StatusBadge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { memberAccounts as memberSeeds, type MemberAccount } from "@/mocks/organizations";
+import { TabbedPageHeader } from "@/components/page-tabs";
 
 type SettingTab = "organizations" | "members";
 
@@ -31,12 +33,14 @@ export default function SettingsPage() {
   const [organizationPageSize, setOrganizationPageSize] = useState(10);
   const [members, setMembers] = useState(memberSeeds);
   const [memberKeyword, setMemberKeyword] = useState("");
-  const [roleFilter, setRoleFilter] = useState("全部角色");
-  const [statusFilter, setStatusFilter] = useState("全部状态");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [memberOrganizationId, setMemberOrganizationId] = useState("org-1");
   const [memberPage, setMemberPage] = useState(1);
   const [memberPageSize, setMemberPageSize] = useState(10);
-  const { organizations, currentOrganization, setCurrentOrganizationId } = useOrganization();
+  const { organizations, currentOrganization, setOrganizationStatus } = useOrganization();
   const { toast } = useToast();
+  const memberOrganization = organizations.find((item) => item.id === memberOrganizationId);
 
   const filteredOrganizations = useMemo(
     () => organizations.filter((item) => item.name.includes(organizationKeyword) || item.industry.includes(organizationKeyword)),
@@ -46,21 +50,30 @@ export default function SettingsPage() {
 
   const filteredMembers = useMemo(
     () => members.filter((item) => (
-      item.organizationId === currentOrganization.id
+      (!memberOrganizationId || item.organizationId === memberOrganizationId)
       && (item.name.includes(memberKeyword) || item.email.includes(memberKeyword) || item.phone.includes(memberKeyword))
-      && (roleFilter === "全部角色" || item.role === roleFilter)
-      && (statusFilter === "全部状态" || item.status === statusFilter)
+      && (!roleFilter || item.role === roleFilter)
+      && (!statusFilter || item.status === statusFilter)
     )),
-    [currentOrganization.id, memberKeyword, members, roleFilter, statusFilter],
+    [memberOrganizationId, memberKeyword, members, roleFilter, statusFilter],
   );
   const pagedMembers = filteredMembers.slice((memberPage - 1) * memberPageSize, memberPage * memberPageSize);
 
-  const switchOrganization = (id: string) => {
-    const target = organizations.find((item) => item.id === id);
-    if (!target || target.id === currentOrganization.id) return;
-    setCurrentOrganizationId(id);
+  const openMembers = (id: string) => {
+    setMemberOrganizationId(id);
+    setMemberKeyword("");
+    setRoleFilter("");
+    setStatusFilter("");
     setMemberPage(1);
-    toast("企业切换成功", { description: `当前企业已切换为 ${target.name}` });
+    setActiveTab("members");
+  };
+
+  const toggleOrganization = (id: string) => {
+    const target = organizations.find((item) => item.id === id);
+    if (!target) return;
+    const status = target.status === "正常" ? "已停用" : "正常";
+    setOrganizationStatus(id, status);
+    toast(status === "正常" ? "企业已启用" : "企业已停用", { description: target.name });
   };
 
   const updateRole = (member: MemberAccount, role: MemberAccount["role"]) => {
@@ -76,17 +89,13 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-5">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand">系统管理</p>
-            <h1 className="mt-1 text-[28px] font-bold tracking-tight text-ink">设置</h1>
-          </div>
-          <div className="flex items-center gap-1 rounded-xl border border-line bg-white p-1 shadow-panel">
-            <TabButton active={activeTab === "organizations"} icon={Building2} label="企业管理" onClick={() => setActiveTab("organizations")} />
-            <TabButton active={activeTab === "members"} icon={Users} label="账号管理" onClick={() => setActiveTab("members")} />
-          </div>
-        </div>
+      <TabbedPageHeader
+        eyebrow="系统管理"
+        title="设置"
+        tabs={[{ value: "organizations", label: "企业管理", icon: Building2 }, { value: "members", label: "成员管理", icon: Users }]}
+        value={activeTab}
+        onChange={setActiveTab}
+        action={
         <div className="flex items-center gap-4">
           <div className="hidden items-center gap-2 text-xs text-muted lg:flex">
             <span>当前企业</span>
@@ -94,9 +103,10 @@ export default function SettingsPage() {
           </div>
           {activeTab === "organizations"
             ? <button onClick={() => toast("新建企业入口已打开", { description: "Mock 演示暂不提交真实企业信息" })} className="btn-primary"><Plus size={16} />新建企业</button>
-            : <button onClick={() => toast("邀请已发送", { description: `邀请成员加入 ${currentOrganization.name}` })} className="btn-primary"><MailPlus size={16} />邀请成员</button>}
+            : <button onClick={() => toast("邀请已发送", { description: `邀请成员加入 ${memberOrganization?.name || currentOrganization.name}` })} className="btn-primary"><MailPlus size={16} />邀请成员</button>}
         </div>
-      </div>
+        }
+      />
 
       {activeTab === "organizations" && (
         <>
@@ -121,10 +131,10 @@ export default function SettingsPage() {
                   <tr key={organization.id} className="hover:bg-[#fbfcfb]">
                     <td className="px-5 py-4"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-[#d8ece3] font-bold text-brand-dark">{organization.shortName}</span><div><p className="font-bold">{organization.name}</p>{organization.id === currentOrganization.id && <p className="mt-1 text-[11px] font-semibold text-brand">当前企业</p>}</div></div></td>
                     <td className="text-muted">{organization.industry}</td>
-                    <td><div className="flex gap-4 text-xs"><span><strong className="text-ink">{organization.memberCount}</strong> 成员</span><span><strong className="text-ink">{organization.brandCount}</strong> 品牌</span></div></td>
+                    <td><div className="flex gap-4 text-xs"><button onClick={() => openMembers(organization.id)} className="font-semibold text-blue-600 transition hover:text-blue-800 hover:underline"><strong>{members.filter((member) => member.organizationId === organization.id).length}</strong> 成员</button><span><strong className="text-ink">{organization.brandCount}</strong> 品牌</span></div></td>
                     <td className="font-mono text-xs text-muted">{organization.createdAt}</td>
                     <td><StatusBadge status={organization.status} /></td>
-                    <td className="pr-5"><div className="flex justify-end gap-2">{organization.status === "正常" && organization.id !== currentOrganization.id && <button onClick={() => switchOrganization(organization.id)} className="btn-secondary !px-3 !py-2 text-xs">切换至该企业<ChevronRight size={14} /></button>}<button onClick={() => toast("企业信息编辑入口已打开", { description: organization.name })} className="grid size-9 place-items-center rounded-lg border border-line text-muted hover:border-brand hover:text-brand" title="编辑企业"><Pencil size={15} /></button></div></td>
+                    <td className="pr-5"><div className="flex justify-end gap-2"><button onClick={() => toggleOrganization(organization.id)} className={cn("btn-secondary !px-3 !py-2 text-xs", organization.status === "正常" && "!border-rose-100 !text-rose-700 hover:!border-rose-300")}>{organization.status === "正常" ? <PowerOff size={14} /> : <Power size={14} />}{organization.status === "正常" ? "停用" : "启用"}</button><button onClick={() => toast("企业信息编辑入口已打开", { description: organization.name })} className="grid size-9 place-items-center rounded-lg border border-line text-muted hover:border-brand hover:text-brand" title="编辑企业"><Pencil size={15} /></button></div></td>
                   </tr>
                 ))}
               </tbody>
@@ -137,15 +147,16 @@ export default function SettingsPage() {
       {activeTab === "members" && (
         <>
           <div className="mb-5 grid grid-cols-3 gap-4">
-            <SummaryCard icon={Users} label="企业成员" value={filteredMembers.length.toString()} note={`当前企业：${currentOrganization.name}`} />
+            <SummaryCard icon={Users} label="企业成员" value={filteredMembers.length.toString()} note={memberOrganization ? `筛选企业：${memberOrganization.name}` : "全部企业成员"} />
             <SummaryCard icon={ShieldCheck} label="管理员" value={filteredMembers.filter((item) => item.role.includes("管理员")).length.toString()} note="含超级管理员与管理员" />
             <SummaryCard icon={CircleUserRound} label="待处理账号" value={filteredMembers.filter((item) => item.status !== "正常").length.toString()} note="待邀请或已停用账号" />
           </div>
 
           <div className="panel mb-4 flex flex-wrap items-center gap-3 p-4">
             <div className="relative min-w-64 flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" /><input value={memberKeyword} onChange={(event) => { setMemberKeyword(event.target.value); setMemberPage(1); }} className="field pl-9" placeholder="搜索姓名、邮箱、手机号" /></div>
-            <select value={roleFilter} onChange={(event) => { setRoleFilter(event.target.value); setMemberPage(1); }} className="field !w-40"><option>全部角色</option><option>超级管理员</option><option>管理员</option><option>运营人员</option><option>查看者</option></select>
-            <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setMemberPage(1); }} className="field !w-36"><option>全部状态</option><option>正常</option><option>待邀请</option><option>已停用</option></select>
+            <FilterSelect value={memberOrganization?.name || ""} options={organizations.map((item) => item.name)} placeholder="全部企业" onChange={(value) => { const target = organizations.find((item) => item.name === value); setMemberOrganizationId(target?.id || ""); setMemberPage(1); }} />
+            <FilterSelect value={roleFilter} options={["超级管理员", "管理员", "运营人员", "查看者"]} placeholder="全部角色" onChange={(value) => { setRoleFilter(value); setMemberPage(1); }} />
+            <FilterSelect value={statusFilter} options={["正常", "待邀请", "已停用"]} placeholder="全部状态" onChange={(value) => { setStatusFilter(value); setMemberPage(1); }} />
           </div>
 
           <div className="table-wrap">
@@ -170,10 +181,6 @@ export default function SettingsPage() {
       )}
     </>
   );
-}
-
-function TabButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Building2; label: string; onClick: () => void }) {
-  return <button onClick={onClick} className={cn("flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition", active ? "bg-brand text-white shadow-sm" : "text-muted hover:bg-[#f4f8f6] hover:text-ink")}><Icon size={16} />{label}{active && <Check size={13} />}</button>;
 }
 
 function SummaryCard({ icon: Icon, label, value, note }: { icon: typeof Users; label: string; value: string; note: string }) {

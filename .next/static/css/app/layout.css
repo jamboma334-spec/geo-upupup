@@ -683,6 +683,15 @@ video {
 .top-1\/2 {
   top: 50%;
 }
+.left-2\.5 {
+  left: 0.625rem;
+}
+.top-\[calc\(100\%\+6px\)\] {
+  top: calc(100% + 6px);
+}
+.right-0 {
+  right: 0px;
+}
 .z-10 {
   z-index: 10;
 }
@@ -700,6 +709,9 @@ video {
 }
 .z-30 {
   z-index: 30;
+}
+.z-40 {
+  z-index: 40;
 }
 .m-3 {
   margin: 0.75rem;
@@ -861,8 +873,14 @@ video {
 .h-\[72px\] {
   height: 72px;
 }
+.h-\[42px\] {
+  height: 42px;
+}
 .max-h-72 {
   max-height: 18rem;
+}
+.max-h-56 {
+  max-height: 14rem;
 }
 .min-h-64 {
   min-height: 16rem;
@@ -912,6 +930,12 @@ video {
 .\!w-40 {
   width: 10rem !important;
 }
+.w-56 {
+  width: 14rem;
+}
+.w-64 {
+  width: 16rem;
+}
 .min-w-0 {
   min-width: 0px;
 }
@@ -920,6 +944,12 @@ video {
 }
 .min-w-64 {
   min-width: 16rem;
+}
+.min-w-48 {
+  min-width: 12rem;
+}
+.min-w-40 {
+  min-width: 10rem;
 }
 .max-w-2xl {
   max-width: 42rem;
@@ -941,6 +971,9 @@ video {
 }
 .max-w-xl {
   max-width: 36rem;
+}
+.max-w-48 {
+  max-width: 12rem;
 }
 .flex-1 {
   flex: 1 1 0%;
@@ -1287,6 +1320,9 @@ video {
 .bg-white\/90 {
   background-color: rgb(255 255 255 / 0.9);
 }
+.bg-white\/20 {
+  background-color: rgb(255 255 255 / 0.2);
+}
 .bg-gradient-to-br {
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
@@ -1326,6 +1362,9 @@ video {
 }
 .p-8 {
   padding: 2rem;
+}
+.p-1\.5 {
+  padding: 0.375rem;
 }
 .\!px-3 {
   padding-left: 0.75rem !important;
@@ -1435,6 +1474,12 @@ video {
 }
 .pt-5 {
   padding-top: 1.25rem;
+}
+.pl-8 {
+  padding-left: 2rem;
+}
+.pr-2 {
+  padding-right: 0.5rem;
 }
 .text-left {
   text-align: left;
@@ -1760,6 +1805,10 @@ button {
   border-color: rgb(253 164 175 / var(--tw-border-opacity, 1)) !important;
 }
 
+.hover\:border-brand\/50:hover {
+  border-color: rgb(22 130 93 / 0.5);
+}
+
 .hover\:bg-\[\#fbfcfb\]:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(251 252 251 / var(--tw-bg-opacity, 1));
@@ -1834,6 +1883,11 @@ button {
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
+.hover\:text-blue-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
+
 .hover\:underline:hover {
   text-decoration-line: underline;
 }
@@ -1872,6 +1926,10 @@ button {
 }
 
 @media (min-width: 1024px) {
+
+  .lg\:block {
+    display: block;
+  }
 
   .lg\:flex {
     display: flex;

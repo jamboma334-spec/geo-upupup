@@ -7,6 +7,7 @@ import {
   LogIn,
   Plus,
   RefreshCw,
+  Search,
   ShieldCheck,
   Trash2,
   X,
@@ -15,6 +16,7 @@ import { useMemo, useState } from "react";
 import { PageHeader, StatusBadge } from "@/components/ui";
 import { useToast } from "@/components/toast-provider";
 import { Pagination } from "@/components/pagination";
+import { FilterSelect } from "@/components/filter-select";
 
 type AccountStatus = "正常" | "即将过期" | "登录失效";
 
@@ -25,6 +27,8 @@ interface PlatformAccount {
   avatar: string;
   status: AccountStatus;
   lastTested: string;
+  addedAt: string;
+  addedBy: string;
 }
 
 const supportedPlatforms = [
@@ -37,11 +41,11 @@ const supportedPlatforms = [
 ];
 
 const accountSeeds: PlatformAccount[] = [
-  { id: "account-1", platform: "小红书", username: "远途出行笔记", avatar: "行", status: "正常", lastTested: "2026-06-15 19:32:18" },
-  { id: "account-2", platform: "头条号", username: "远途汽车官方", avatar: "远", status: "正常", lastTested: "2026-06-15 17:41:06" },
-  { id: "account-3", platform: "百家号", username: "远途汽车品牌号", avatar: "途", status: "即将过期", lastTested: "2026-06-14 16:30:25" },
+  { id: "account-1", platform: "小红书", username: "远途出行笔记", avatar: "行", status: "正常", lastTested: "2026-06-15 19:32:18", addedAt: "2026-06-01 10:25:18", addedBy: "马嘉博" },
+  { id: "account-2", platform: "头条号", username: "远途汽车官方", avatar: "远", status: "正常", lastTested: "2026-06-15 17:41:06", addedAt: "2026-05-28 14:32:06", addedBy: "陈晓雨" },
+  { id: "account-3", platform: "百家号", username: "远途汽车品牌号", avatar: "途", status: "即将过期", lastTested: "2026-06-14 16:30:25", addedAt: "2026-05-20 09:16:25", addedBy: "李明轩" },
 ];
-const initialAccounts: PlatformAccount[] = [...accountSeeds, ...Array.from({ length: 12 }, (_, index): PlatformAccount => ({ id: `account-${index + 4}`, platform: supportedPlatforms[index % supportedPlatforms.length].name, username: `远途汽车运营账号 ${index + 1}`, avatar: ["远", "途", "运", "营"][index % 4], status: index % 5 === 0 ? "即将过期" : "正常", lastTested: `2026-06-${String(14 - Math.floor(index / 4)).padStart(2, "0")} ${String(9 + index % 9).padStart(2, "0")}:20:18` }))];
+const initialAccounts: PlatformAccount[] = [...accountSeeds, ...Array.from({ length: 12 }, (_, index): PlatformAccount => ({ id: `account-${index + 4}`, platform: supportedPlatforms[index % supportedPlatforms.length].name, username: `远途汽车运营账号 ${index + 1}`, avatar: ["远", "途", "运", "营"][index % 4], status: index % 5 === 0 ? "即将过期" : "正常", lastTested: `2026-06-${String(14 - Math.floor(index / 4)).padStart(2, "0")} ${String(9 + index % 9).padStart(2, "0")}:20:18`, addedAt: `2026-05-${String(18 - Math.floor(index / 2)).padStart(2, "0")} ${String(9 + index % 8).padStart(2, "0")}:15:20`, addedBy: ["马嘉博", "陈晓雨", "李明轩", "周悦"][index % 4] }))];
 
 const qrPattern = [
   1,1,1,1,1,0,1,0,1,1,1,1,1, 1,0,0,0,1,0,0,1,1,0,0,0,1, 1,0,1,0,1,1,1,0,1,0,1,0,1,
@@ -66,10 +70,14 @@ export default function AccountsPage() {
   const [deleteTarget, setDeleteTarget] = useState<PlatformAccount | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [keyword, setKeyword] = useState("");
+  const [platformFilter, setPlatformFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const { toast } = useToast();
 
   const selected = useMemo(() => supportedPlatforms.find((platform) => platform.name === selectedPlatform), [selectedPlatform]);
-  const pagedAccounts = accounts.slice((page - 1) * pageSize, page * pageSize);
+  const filteredAccounts = accounts.filter((account) => account.username.includes(keyword) && (!platformFilter || account.platform === platformFilter) && (!statusFilter || account.status === statusFilter));
+  const pagedAccounts = filteredAccounts.slice((page - 1) * pageSize, page * pageSize);
 
   const openAddModal = () => {
     setSelectedPlatform("");
@@ -97,6 +105,8 @@ export default function AccountsPage() {
       avatar: "远",
       status: "正常",
       lastTested: formatDateTime(),
+      addedAt: formatDateTime(),
+      addedBy: "马嘉博",
     };
     setAccounts((items) => [newAccount, ...items]);
     setModalOpen(false);
@@ -135,9 +145,16 @@ export default function AccountsPage() {
         <div className="panel p-5"><p className="text-xs font-semibold text-muted">需要处理</p><p className="mt-3 text-3xl font-bold text-amber-700">{accounts.filter((item) => item.status !== "正常").length}</p><p className="mt-2 text-xs text-muted">建议重新扫码登录</p></div>
       </div>
 
+      <div className="panel mb-4 flex flex-wrap items-center gap-3 p-4">
+        <label className="relative w-56 shrink-0"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" /><input value={keyword} onChange={(event) => { setKeyword(event.target.value); setPage(1); }} className="field pl-9" placeholder="搜索用户名" /></label>
+        <FilterSelect value={platformFilter} options={supportedPlatforms.map((item) => item.name)} placeholder="全部平台" onChange={(value) => { setPlatformFilter(value); setPage(1); }} />
+        <FilterSelect value={statusFilter} options={["正常", "即将过期", "登录失效"]} placeholder="全部状态" onChange={(value) => { setStatusFilter(value); setPage(1); }} />
+        <span className="ml-auto text-xs text-muted">共 {filteredAccounts.length} 个账号</span>
+      </div>
+
       <div className="table-wrap">
         <table className="w-full text-sm">
-          <thead className="table-head"><tr><th className="px-5 py-3.5">平台</th><th>用户信息</th><th>登录状态</th><th>最近测试时间</th><th className="pr-5 text-right">操作</th></tr></thead>
+          <thead className="table-head"><tr><th className="px-5 py-3.5">平台</th><th>用户信息</th><th>登录状态</th><th>添加人</th><th>添加时间</th><th>最近测试时间</th><th className="pr-5 text-right">操作</th></tr></thead>
           <tbody className="divide-y divide-line">
             {pagedAccounts.map((account) => {
               const platform = supportedPlatforms.find((item) => item.name === account.platform);
@@ -146,6 +163,8 @@ export default function AccountsPage() {
                   <td className="px-5 py-5"><div className="flex items-center gap-3"><div className={`grid size-11 place-items-center rounded-xl font-bold text-white ${platform?.color || "bg-brand"}`}>{platform?.mark || account.platform.slice(0, 1)}</div><p className="font-bold">{account.platform}</p></div></td>
                   <td><div className="flex items-center gap-3"><div className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-[#d6eee3] to-[#abd8c4] text-sm font-bold text-brand-dark">{account.avatar}</div><span className="font-semibold">{account.username}</span></div></td>
                   <td><StatusBadge status={account.status} /></td>
+                  <td><div className="flex items-center gap-2"><span className="grid size-7 place-items-center rounded-full bg-blue-50 text-[11px] font-bold text-blue-700">{account.addedBy.slice(0, 1)}</span><span className="text-xs font-semibold">{account.addedBy}</span></div></td>
+                  <td className="font-mono text-xs text-muted">{account.addedAt}</td>
                   <td className="font-mono text-xs text-muted">{account.lastTested}</td>
                   <td className="pr-5"><div className="flex justify-end gap-2"><button onClick={() => testLogin(account.id)} disabled={testingId === account.id} className="grid size-9 place-items-center rounded-lg border border-line text-muted transition hover:border-brand/30 hover:bg-brand-pale hover:text-brand disabled:cursor-wait" title={testingId === account.id ? "正在测试登录状态" : "测试登录状态"}>{testingId === account.id ? <LoaderCircle size={15} className="animate-spin" /> : <ShieldCheck size={15} />}</button><button onClick={() => setDeleteTarget(account)} className="grid size-9 place-items-center rounded-lg border border-line text-muted transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700" title="删除账号"><Trash2 size={15} /></button></div></td>
                 </tr>
@@ -153,8 +172,8 @@ export default function AccountsPage() {
             })}
           </tbody>
         </table>
-        {accounts.length > 0 && <Pagination page={page} pageSize={pageSize} total={accounts.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} />}
-        {accounts.length === 0 && <div className="grid min-h-64 place-items-center text-center"><div><p className="font-bold">还没有添加平台账号</p><p className="mt-2 text-sm text-muted">添加账号后即可进行多平台内容发布</p><button onClick={openAddModal} className="btn-primary mt-5"><Plus size={15} />添加平台账号</button></div></div>}
+        {filteredAccounts.length > 0 && <Pagination page={page} pageSize={pageSize} total={filteredAccounts.length} onPageChange={setPage} onPageSizeChange={(size) => { setPageSize(size); setPage(1); }} />}
+        {filteredAccounts.length === 0 && <div className="grid min-h-64 place-items-center text-center"><div><p className="font-bold">{accounts.length === 0 ? "还没有添加平台账号" : "没有找到符合条件的账号"}</p><p className="mt-2 text-sm text-muted">{accounts.length === 0 ? "添加账号后即可进行多平台内容发布" : "尝试清除筛选条件或修改用户名关键词"}</p>{accounts.length === 0 && <button onClick={openAddModal} className="btn-primary mt-5"><Plus size={15} />添加平台账号</button>}</div></div>}
       </div>
 
       {modalOpen && (
