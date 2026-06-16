@@ -1,7 +1,0 @@
-{
-  "/content/accounts/page": "app/content/accounts/page.js",
-  "/content/library/page": "app/content/library/page.js",
-  "/content/publish/page": "app/content/publish/page.js",
-  "/content/publish/[id]/page": "app/content/publish/[id]/page.js",
-  "/settings/page": "app/settings/page.js"
-}
