@@ -10,8 +10,10 @@ import {
   Check,
   ChevronDown,
   CircleGauge,
+  FileText,
   FileQuestion,
   Library,
+  LogOut,
   Menu,
   PanelLeftClose,
   Send,
@@ -42,19 +44,13 @@ const navGroups = [
       { label: "平台授权", href: "/content/accounts", icon: Settings2 },
     ],
   },
-  {
-    label: "系统管理",
-    items: [
-      { label: "设置", href: "/settings", icon: Settings },
-    ],
-  },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [scenario, setScenario] = useState("正常数据");
   const [organizationOpen, setOrganizationOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { organizations, currentOrganization, setCurrentOrganizationId } = useOrganization();
   const { toast } = useToast();
 
@@ -70,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" onClick={() => { setOrganizationOpen(false); setUserMenuOpen(false); }}>
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-20 flex flex-col border-r border-white/10 bg-[#10271f] text-white transition-all",
@@ -122,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className={cn("transition-all", collapsed ? "ml-[76px]" : "ml-[240px]")}>
         <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between border-b border-line bg-white/90 px-7 backdrop-blur">
-          <div className="relative">
+          <div className="relative" onClick={(event) => event.stopPropagation()}>
             <button onClick={() => setOrganizationOpen((open) => !open)} className="flex min-w-44 items-center gap-2 rounded-lg border border-line bg-[#f8faf9] px-3 py-2 text-sm font-semibold transition hover:border-brand/40">
               <span className="grid size-6 place-items-center rounded-md bg-brand text-xs text-white">{currentOrganization.shortName}</span>
               <span className="max-w-36 truncate">{currentOrganization.name}</span>
@@ -149,14 +145,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="size-2 rounded-full bg-emerald-500" />
               数据更新于 10 分钟前
             </div>
-            <select value={scenario} onChange={(event) => setScenario(event.target.value)} className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-medium text-muted outline-none">
-              <option>正常数据</option>
-              <option>部分任务失败</option>
-              <option>平台授权过期</option>
-              <option>数据暂未同步</option>
-            </select>
             <button className="grid size-9 place-items-center rounded-lg border border-line text-muted hover:text-brand"><Bell size={17} /></button>
-            <div className="grid size-9 place-items-center rounded-full bg-[#d8ece3] text-sm font-bold text-brand-dark">MJ</div>
+            <Link href="/settings" className="grid size-9 place-items-center rounded-lg border border-line text-muted transition hover:border-brand/40 hover:bg-brand-pale hover:text-brand" title="设置">
+              <Settings size={17} />
+            </Link>
+            <div className="relative" onClick={(event) => event.stopPropagation()}>
+              <button onClick={() => setUserMenuOpen((open) => !open)} className={cn("grid size-9 place-items-center rounded-full bg-[#d8ece3] text-sm font-bold text-brand-dark transition hover:ring-2 hover:ring-brand/20", userMenuOpen && "ring-2 ring-brand/20")} aria-expanded={userMenuOpen} aria-haspopup="menu">MJ</button>
+              {userMenuOpen && <div className="absolute right-0 top-11 z-40 w-44 overflow-hidden rounded-xl border border-line bg-white shadow-xl">
+                <Link href="/release" target="_blank" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-ink hover:bg-brand-pale hover:text-brand"><FileText size={15} />Release</Link>
+                <button disabled className="flex w-full cursor-not-allowed items-center gap-2 border-t border-line px-4 py-3 text-left text-sm font-semibold text-slate-300"><LogOut size={15} />退出登录</button>
+              </div>}
+            </div>
           </div>
         </header>
         <main className="mx-auto max-w-[1560px] px-7 py-7">{children}</main>
