@@ -13,13 +13,13 @@ export interface PageTab<T extends string> {
 
 export function PageTabs<T extends string>({ tabs, value, onChange }: { tabs: PageTab<T>[]; value: T; onChange: (value: T) => void }) {
   return (
-    <div className="flex items-center gap-1 rounded-xl border border-line bg-white p-1 shadow-panel">
+    <div className="flex min-h-9 items-center gap-1 rounded-lg border border-line bg-white p-0.5 shadow-panel">
       {tabs.map((tab) => {
         const active = tab.value === value;
         const Icon = tab.icon;
         return (
-          <button key={tab.value} onClick={() => onChange(tab.value)} className={cn("flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition", active ? "bg-brand text-white shadow-sm" : "text-muted hover:bg-[#f4f8f6] hover:text-ink")}>
-            {Icon && <Icon size={16} />}
+          <button key={tab.value} onClick={() => onChange(tab.value)} className={cn("flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-semibold transition", active ? "bg-brand text-white shadow-sm" : "text-muted hover:bg-[#f4f8f6] hover:text-ink")}>
+            {Icon && <Icon size={14} />}
             {tab.label}
             {tab.badge !== undefined && <span className={cn("rounded-full px-2 py-0.5 text-[11px]", active ? "bg-white/20 text-white" : "bg-slate-100 text-muted")}>{tab.badge}</span>}
             {active && tab.badge === undefined && <Check size={13} />}
@@ -48,14 +48,14 @@ export function TabbedPageHeader<T extends string>({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-      <div className="flex items-center gap-5">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand">{eyebrow}</p>
-          <h1 className="mt-1 text-[28px] font-bold tracking-tight text-ink">{title}</h1>
-          {description && <p className="mt-1.5 max-w-2xl text-sm leading-5 text-muted">{description}</p>}
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-brand">{eyebrow}</p>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <h1 className="text-[28px] font-bold tracking-tight text-ink">{title}</h1>
+          <PageTabs tabs={tabs} value={value} onChange={onChange} />
         </div>
-        <PageTabs tabs={tabs} value={value} onChange={onChange} />
+        {description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{description}</p>}
       </div>
       {action}
     </div>

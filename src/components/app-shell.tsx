@@ -90,7 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {!collapsed && <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/35">{group.label}</p>}
               <div className="space-y-1">
                 {group.items.map((item) => {
-                  const active = pathname.startsWith(item.href);
+                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                   const Icon = item.icon;
                   return (
                     <Link

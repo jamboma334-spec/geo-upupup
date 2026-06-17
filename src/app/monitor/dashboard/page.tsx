@@ -47,7 +47,7 @@ export default function DashboardPage() {
                   </div>
                   <p className="mt-1.5 text-xs text-muted">{query.opportunity}</p>
                 </div>
-                <Link href={`/monitor/queries/${query.id}`} className="btn-secondary !px-3 !py-2">查看证据<ArrowRight size={14} /></Link>
+                <Link href={`/monitor/queries/${query.querySetId}`} className="btn-secondary !px-3 !py-2">查看 Query 集<ArrowRight size={14} /></Link>
               </div>
             ))}
           </div>

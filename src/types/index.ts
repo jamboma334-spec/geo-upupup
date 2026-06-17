@@ -3,14 +3,27 @@ export type Status = "成功" | "进行中" | "失败" | "等待中" | "已过�
 export interface QueryItem {
   id: string;
   text: string;
-  category: string;
   priority: "高" | "中" | "低";
-  tags: string[];
+  querySetId: string;
   querySet: string;
   mentioned: boolean;
   recommended: boolean;
   competitor: string;
   opportunity: string;
+}
+
+export interface QuerySet {
+  id: string;
+  name: string;
+  scenario: string;
+  brand: string;
+  product: string;
+  status: "草稿" | "已冻结" | "已归档";
+  version: string;
+  owner: string;
+  updatedAt: string;
+  lastEvaluatedAt?: string;
+  description: string;
 }
 
 export interface EvaluationTask {

@@ -1,12 +1,52 @@
-import type { EvaluationTask, PublishTask, QueryItem } from "@/types";
+import type { EvaluationTask, PublishTask, QueryItem, QuerySet } from "@/types";
+
+export const querySets: QuerySet[] = [
+  {
+    id: "qs-ev-suv-v3",
+    name: "新能源购车决策",
+    scenario: "选购决策",
+    brand: "远途汽车",
+    product: "远途 X7",
+    status: "已冻结",
+    version: "v3",
+    owner: "李明",
+    updatedAt: "2026-06-15 10:20",
+    lastEvaluatedAt: "2026-06-15 10:20",
+    description: "覆盖预算、使用场景、核心卖点和竞品比较，用于月度品牌表现复测。",
+  },
+  {
+    id: "qs-reputation-v2",
+    name: "产品口碑",
+    scenario: "口碑评价",
+    brand: "远途汽车",
+    product: "远途 X7",
+    status: "草稿",
+    version: "v2",
+    owner: "王蕾",
+    updatedAt: "2026-06-13 16:45",
+    description: "关注真实体验、核心能力、使用反馈和用户评价。",
+  },
+  {
+    id: "qs-brand-awareness-v1",
+    name: "品牌认知",
+    scenario: "品牌认知",
+    brand: "远途汽车",
+    product: "全品牌",
+    status: "已冻结",
+    version: "v1",
+    owner: "陈浩",
+    updatedAt: "2026-06-01 09:10",
+    lastEvaluatedAt: "2026-06-01 09:10",
+    description: "用于观察品牌基础认知、售后服务、官网事实和过期说法。",
+  },
+];
 
 const querySeeds: QueryItem[] = [
   {
     id: "q-001",
     text: "适合城市通勤的新能源 SUV 有哪些？",
-    category: "推荐",
     priority: "高",
-    tags: ["新能源", "城市通勤"],
+    querySetId: "qs-ev-suv-v3",
     querySet: "新能源购车决策 v3",
     mentioned: false,
     recommended: false,
@@ -16,9 +56,8 @@ const querySeeds: QueryItem[] = [
   {
     id: "q-002",
     text: "远途汽车和智行汽车哪个更适合家庭用户？",
-    category: "比较",
     priority: "高",
-    tags: ["家庭用车", "竞品对比"],
+    querySetId: "qs-ev-suv-v3",
     querySet: "新能源购车决策 v3",
     mentioned: true,
     recommended: false,
@@ -28,9 +67,8 @@ const querySeeds: QueryItem[] = [
   {
     id: "q-003",
     text: "远途 X7 的续航表现真实吗？",
-    category: "评价",
     priority: "中",
-    tags: ["产品评价", "续航"],
+    querySetId: "qs-reputation-v2",
     querySet: "产品口碑 v2",
     mentioned: true,
     recommended: true,
@@ -40,9 +78,8 @@ const querySeeds: QueryItem[] = [
   {
     id: "q-004",
     text: "预算 25 万买纯电 SUV 怎么选？",
-    category: "推荐",
     priority: "高",
-    tags: ["价格带", "选购"],
+    querySetId: "qs-ev-suv-v3",
     querySet: "新能源购车决策 v3",
     mentioned: false,
     recommended: false,
@@ -52,9 +89,8 @@ const querySeeds: QueryItem[] = [
   {
     id: "q-005",
     text: "远途汽车的售后服务怎么样？",
-    category: "认知",
     priority: "中",
-    tags: ["品牌", "售后"],
+    querySetId: "qs-brand-awareness-v1",
     querySet: "品牌认知 v1",
     mentioned: true,
     recommended: true,
