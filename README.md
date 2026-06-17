@@ -32,6 +32,70 @@ npm run build
 
 `build` 脚本会输出到 `.next-build`，避免覆盖正在运行的开发服务 `.next` 目录。
 
+## Ubuntu 部署
+
+Ubuntu 服务器推荐使用 `systemd` 托管服务，支持开机自启、异常自动重启和统一日志查看。
+
+首次部署示例：
+
+```bash
+# 进入项目目录
+cd /opt/geo-command-center
+
+# 安装 systemd 服务并启动
+sudo APP_DIR=/opt/geo-command-center APP_USER=ubuntu PORT=3000 ./scripts/install-ubuntu-systemd.sh
+```
+
+常用运维命令：
+
+```bash
+sudo systemctl status geo-command-center
+sudo systemctl restart geo-command-center
+sudo systemctl stop geo-command-center
+sudo journalctl -u geo-command-center -f
+```
+
+更新代码后重新发布：
+
+```bash
+cd /opt/geo-command-center
+git pull
+npm ci
+npm run build
+sudo systemctl restart geo-command-center
+```
+
+如果只是本机临时预览，也可以使用通用部署脚本：
+
+```bash
+npm run deploy
+```
+
+默认会执行依赖安装、生产构建，并在后台启动生产服务。这个方式适合演示或临时验证；正式 Ubuntu 服务器建议使用上面的 `systemd` 方式。
+
+常用命令：
+
+```bash
+npm run deploy -- build      # 只安装依赖并构建
+npm run deploy -- start      # 构建并启动生产服务
+npm run deploy -- restart    # 停止旧服务，重新构建并启动
+npm run deploy -- stop       # 停止后台服务
+npm run deploy -- status     # 查看服务状态
+npm run deploy -- package    # 构建并生成 tar.gz 部署包
+```
+
+可通过环境变量调整端口和监听地址：
+
+```bash
+PORT=3000 HOST=0.0.0.0 npm run deploy -- restart
+```
+
+运行日志写入：
+
+```text
+logs/geo-command-center.log
+```
+
 ## 目录结构
 
 ```text
@@ -97,7 +161,8 @@ src/app/content/publish/[id]/page.tsx
 
 - 左侧导航
 - 顶部企业切换
-- 场景选择
+- 右上角设置入口
+- 右上角用户菜单
 - 全局布局宽度与 header
 
 新增主菜单时优先修改 `navGroups`，不要在页面内自建侧边栏。
