@@ -39,11 +39,18 @@ export function StatusBadge({ status }: { status: Status | string }) {
     草稿: "bg-blue-50 text-blue-700",
     已冻结: "bg-emerald-50 text-emerald-700",
     已归档: "bg-slate-100 text-slate-600",
+    已停用: "bg-slate-100 text-slate-600",
+    已启用: "bg-emerald-50 text-emerald-700",
+    已生效: "bg-emerald-50 text-emerald-700",
+    预售: "bg-blue-50 text-blue-700",
+    在售: "bg-emerald-50 text-emerald-700",
+    服务中: "bg-emerald-50 text-emerald-700",
+    已下线: "bg-slate-100 text-slate-600",
     高: "bg-rose-50 text-rose-700",
     中: "bg-amber-50 text-amber-700",
     低: "bg-slate-100 text-slate-600",
   };
-  return <span className={cn("inline-flex rounded-full px-2.5 py-1 text-xs font-semibold", styles[status] || "bg-slate-100 text-slate-600")}>{status}</span>;
+  return <span className={cn("inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold", styles[status] || "bg-slate-100 text-slate-600")}>{status}</span>;
 }
 
 export function MetricCard({

@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 const tabs = [
   { label: "品牌档案", href: "/monitor/brands", icon: Tags },
-  { label: "产品档案", href: "/monitor/brands/products", icon: Package },
+  { label: "产品 / 服务档案", href: "/monitor/brands/products", icon: Package },
   { label: "竞品配置", href: "/monitor/brands/competitors", icon: Swords },
-  { label: "品牌事实 / 知识资料", href: "/monitor/brands/knowledge", icon: BookOpenText },
+  { label: "品牌事实 / 资料库", href: "/monitor/brands/knowledge", icon: BookOpenText },
 ];
 
 export function BrandProductNav({ active }: { active: string }) {
@@ -48,7 +48,7 @@ export function BrandProductHeader({
   return (
     <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
       <div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-brand">监测中心 / 品牌与产品</p>
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-brand">监测中心 / 品牌与产品服务</p>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <h1 className="text-[28px] font-bold tracking-tight text-ink">{title}</h1>
           <BrandProductNav active={active} />

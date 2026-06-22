@@ -17,7 +17,7 @@ export interface QuerySet {
   name: string;
   scenario: string;
   brand: string;
-  product: string;
+  offering: string;
   status: "草稿" | "已冻结" | "已归档";
   version: string;
   owner: string;

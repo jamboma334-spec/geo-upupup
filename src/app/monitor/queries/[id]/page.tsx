@@ -253,7 +253,7 @@ export default function QuerySetDetailPage() {
           </div>
           <div className="mt-4 grid gap-3 text-sm text-muted md:grid-cols-2">
             <p>关联品牌：<span className="font-semibold text-ink">{querySet.brand}</span></p>
-            <p>关联产品：<span className="font-semibold text-ink">{querySet.product}</span></p>
+            <p>关联产品 / 服务：<span className="font-semibold text-ink">{querySet.offering}</span></p>
             <p>负责人：<span className="font-semibold text-ink">{querySet.owner}</span></p>
             <p>更新时间：<span className="font-semibold text-ink">{querySet.updatedAt}</span></p>
             <p className="md:col-span-2">最近评测：<span className="font-semibold text-ink">{querySet.lastEvaluatedAt || "暂无评测"}</span></p>
@@ -341,7 +341,7 @@ export default function QuerySetDetailPage() {
             <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
               <div>
                 <h2 className="text-lg font-bold">AI 推荐 Query</h2>
-                <p className="mt-1 text-xs text-muted">基于 {querySet.brand} / {querySet.product} / {recommendScene} 生成候选问题，确认后加入当前 Query 集。</p>
+                <p className="mt-1 text-xs text-muted">基于 {querySet.brand} / {querySet.offering} / {recommendScene} 生成候选问题，确认后加入当前 Query 集。</p>
               </div>
               <button onClick={() => setRecommendModalOpen(false)} className="grid size-9 place-items-center rounded-lg border border-line text-muted hover:border-brand hover:text-brand" title="关闭"><X size={17} /></button>
             </div>
@@ -371,7 +371,7 @@ export default function QuerySetDetailPage() {
                   </div>
                   <div className="rounded-xl border border-line bg-white p-4 text-xs leading-5 text-muted">
                     <p>品牌：<strong className="text-ink">{querySet.brand}</strong></p>
-                    <p className="mt-1">产品：<strong className="text-ink">{querySet.product}</strong></p>
+                    <p className="mt-1">产品 / 服务：<strong className="text-ink">{querySet.offering}</strong></p>
                     <p className="mt-1">当前集合：<strong className="text-ink">{querySet.name} {querySet.version}</strong></p>
                   </div>
                   <button onClick={() => toast("推荐已刷新", { description: `已按 ${recommendDirections.join("、") || "全部方向"} 重新生成候选 Query` })} className="btn-primary w-full"><RefreshCw size={15} />重新生成</button>

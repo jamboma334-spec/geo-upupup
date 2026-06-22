@@ -10,7 +10,7 @@ import { queries, querySets } from "@/mocks/data";
 import type { QuerySet } from "@/types";
 
 const scenarioOptions = ["选购决策", "品牌认知", "口碑评价", "竞品比较", "价格预算", "售后服务", "使用场景"];
-const productOptions = ["远途 X7", "远途 M5", "远途 S9", "全品牌"];
+const offeringOptions = ["远途 X7", "远途 M5", "企业接送服务", "道路救援服务", "全品牌"];
 
 export default function QueriesPage() {
   const [sets, setSets] = useState<QuerySet[]>(querySets);
@@ -22,7 +22,7 @@ export default function QueriesPage() {
     name: "",
     scenario: scenarioOptions[0],
     brand: "远途汽车",
-    product: productOptions[0],
+    offering: offeringOptions[0],
     owner: "李明",
     description: "",
   });
@@ -40,7 +40,7 @@ export default function QueriesPage() {
   }), [sets]);
 
   const filteredQuerySets = querySetSummaries.filter((querySet) => (
-    (querySet.name.includes(keyword) || querySet.scenario.includes(keyword) || querySet.brand.includes(keyword) || querySet.product.includes(keyword))
+    (querySet.name.includes(keyword) || querySet.scenario.includes(keyword) || querySet.brand.includes(keyword) || querySet.offering.includes(keyword))
     && (!statusFilter || querySet.status === statusFilter)
     && (!scenarioFilter || querySet.scenario === scenarioFilter)
   ));
@@ -54,7 +54,7 @@ export default function QueriesPage() {
       name: "",
       scenario: scenarioOptions[0],
       brand: "远途汽车",
-      product: productOptions[0],
+      offering: offeringOptions[0],
       owner: "李明",
       description: "",
     });
@@ -72,7 +72,7 @@ export default function QueriesPage() {
       name,
       scenario: form.scenario,
       brand: form.brand.trim() || "远途汽车",
-      product: form.product,
+      offering: form.offering,
       status: "草稿",
       version: "v1",
       owner: form.owner.trim() || "李明",
@@ -97,7 +97,7 @@ export default function QueriesPage() {
       />
 
       <div className="panel mb-4 flex flex-wrap items-center gap-3 p-4">
-        <label className="relative min-w-72 flex-1"><Search size={16} className="absolute left-3 top-3 text-muted" /><input value={keyword} onChange={(event) => setKeyword(event.target.value)} className="field pl-9" placeholder="搜索 Query 集、场景、品牌或产品" /></label>
+        <label className="relative min-w-72 flex-1"><Search size={16} className="absolute left-3 top-3 text-muted" /><input value={keyword} onChange={(event) => setKeyword(event.target.value)} className="field pl-9" placeholder="搜索 Query 集、场景、品牌或产品 / 服务" /></label>
         <FilterSelect value={scenarioFilter} options={[...new Set(sets.map((item) => item.scenario))]} placeholder="全部场景" onChange={setScenarioFilter} className="w-36" />
         <FilterSelect value={statusFilter} options={["草稿", "已冻结", "已归档"]} placeholder="全部状态" onChange={setStatusFilter} className="w-36" />
       </div>
@@ -121,7 +121,7 @@ export default function QueriesPage() {
             </div>
             <div className="mt-5 grid gap-2 text-xs text-muted">
               <p>场景：<span className="font-semibold text-ink">{querySet.scenario}</span></p>
-              <p>对象：<span className="font-semibold text-ink">{querySet.brand} / {querySet.product}</span></p>
+              <p>对象：<span className="font-semibold text-ink">{querySet.brand} / {querySet.offering}</span></p>
               <p>最近评测：<span className="font-semibold text-ink">{querySet.lastEvaluatedAt || "暂无评测"}</span></p>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -164,9 +164,9 @@ export default function QueriesPage() {
                   </select>
                 </label>
                 <label>
-                  <span className="mb-1.5 block text-xs font-semibold text-muted">关联产品</span>
-                  <select value={form.product} onChange={(event) => updateForm("product", event.target.value)} className="field">
-                    {productOptions.map((product) => <option key={product}>{product}</option>)}
+                  <span className="mb-1.5 block text-xs font-semibold text-muted">关联产品 / 服务</span>
+                  <select value={form.offering} onChange={(event) => updateForm("offering", event.target.value)} className="field">
+                    {offeringOptions.map((offering) => <option key={offering}>{offering}</option>)}
                   </select>
                 </label>
                 <label>

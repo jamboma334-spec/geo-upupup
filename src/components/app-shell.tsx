@@ -32,7 +32,7 @@ const navGroups = [
     items: [
       { label: "数据看板", href: "/monitor/dashboard", icon: CircleGauge },
       { label: "Query 管理", href: "/monitor/queries", icon: FileQuestion },
-      { label: "品牌 / 产品", href: "/monitor/brands", icon: Tags },
+      { label: "品牌 / 产品与服务", href: "/monitor/brands", icon: Tags },
       { label: "任务管理", href: "/monitor/tasks", icon: Bot },
     ],
   },
